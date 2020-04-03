@@ -1,0 +1,148 @@
+API ENDPOINT
+
+url: 'http://localhost:3000'
+
+1. Fetch All Rooms
+Endpoint: GET /manage/rooms
+
+2. Fetch Room by ID
+Endpoint: GET /manage/rooms/:id
+
+Parameter requirement:
+{
+	id: integer
+}
+
+3. Create Room
+Endpoint: POST /create/room
+
+Parameter requirement:
+{
+	user_id: 		INTEGER, 
+	room_capacity:	INTEGER, 
+	room_type:		INTEGER, 
+	description: 	STRING, 
+	unit_price:		DECIMAL(8, 2), 
+	created_at:		DATETIME
+}
+
+{
+	"user_id": "1", 
+	"room_capacity":"3", 
+	"room_type":"3", 
+	"description":"3 beds space", 
+	"unit_price":"1500.00", 
+	"created_at":"2020-04-03 11:12:00"
+}
+
+4. Update Room
+Endpoint: PUT /update/room/:id
+
+Parameter requirement:
+{
+	id: 			INTEGER, 
+	room_capacity:	INTEGER, 
+	room_type:		INTEGER, 
+	description: 	STRING, 
+	unit_price:		DECIMAL(8, 2), 
+}
+
+{
+	"room_capacity":"6", 
+	"room_type":"6", 
+	"description":"4 beds space", 
+	"unit_price":"3500.00"
+}
+
+5. Delete Room
+Endpoint: DELETE /delete/room/:id
+
+Parameter requirement:
+{
+	id: 			INTEGER,  
+}
+
+============================================
+
+6. Create Booking
+Endpoint: POST /create/booking
+
+Parameter requirement:
+{	
+	cust_id:		INTEGER, 
+	firstname:		STRING, 
+	lastname:		STRING, 
+	email:			STRING, 
+	phone:			INTEGER, 
+	address:		STRING, 
+	type:			STRING, 
+	room_id:		INTEGER, 
+	transaction_id:	STRING, 
+	itemname:		STRING, 
+	check_in:		DATE, 
+	check_out:		DATE, 
+	no_of_guest:	INTEGER, 
+	no_of_night:	INTEGER, 
+	room_no:		INTEGER, 
+	unit_price:		DECIMAL(8,2), 
+	amount:			DECIMAL(8,2), 
+	created_at:		DATETIME
+}
+
+{
+	"cust_id":"1", 
+	"firstname":"Onayemi", 
+	"lastname":	"sam", 
+	"email": "onayemi@gmail.com", 
+	"phone": "08061313253", 
+	"address": "8 Adebayo street famous", 
+	"type":	"customer|admin|staff", 
+	"room_id": "21", 
+	"transaction_id": "29417af32a5a", 
+	"itemname":		"4 Beds spaces", 
+	"check_in":	"2020-04-03", 
+	"check_out": "2020-04-05", 
+	"no_of_guest": "2", 
+	"no_of_night": "3", 
+	"room_no":	"21", 
+	"unit_price": "1500.00", 
+	"amount": "4500.00", 
+	"created_at": "2020-04-03 11:12:00"
+}
+
+7. Fetch All Bookings
+Endpoint: GET /view/booking
+
+8. Fetch Booking by ID
+Endpoint: GET /view/booking/:id
+
+Parameter requirement:
+{
+	id: integer
+}
+
+9. Update Booking
+Endpoint: PUT /update/booking/:id
+
+Parameters requirement:
+{ 
+	itemname: 	STRING, 
+	check_in:	DATE, 
+	check_out:	DATE, 
+	no_of_guest:INTEGER, 
+	no_of_night:INTEGER, 
+	room_no:	INTEGER, 
+	unit_price:	DECIMAL(8,2), 
+	amount:		DECIMAL(8,2) 
+}
+
+{ 
+	"itemname": "4 BEDS SPACE", 
+	"check_in":	"2020-04-03", 
+	"check_out": "2020-04-03", 
+	"no_of_guest":"2", 
+	"no_of_night":"3", 
+	"room_no":	"0213", 
+	"unit_price":"1500.00", 
+	"amount":	"9000.00" 
+}

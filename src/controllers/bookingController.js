@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const Joi = require('joi');
+const { v4: uuidv4 } = require('uuid');
 // var crypto = require('crypto');
 
 const pool = new Pool({
@@ -17,30 +18,37 @@ const createBooking = async (req, res) => {
     if(error) return res.status(400).send(error.details[0].message);
 
     const { firstname, lastname, email, phone, address, type } = req.body;
-    const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type) VALUES ($1, $2, $3, $4, $5, $6)', [
+    const { cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at } = req.body;
+    
+    const trans_id = uuidv4();
+    console.log(trans_id);
+    // check the interval of date
+    const timeDiff = (new Date(check_out) - (new Date(check_in)));
+    const days = (timeDiff / (1000 * 60 * 24))/60;
+
+    console.log(days);
+    // const { cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at } = req.bookings;
+    const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type) VALUES ($1, $2, $3, $4, $5, $6) returning *', [
+    // const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type) VALUES ($1, $2, $3, $4, $5, $6) returning *', [
         firstname, lastname, email, phone, address, type
     ]);
-    if(customer){      
-        const { cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at } = req.body;
-        const response = await pool.query('INSERT INTO bookings(cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)', [
-            cust_id, 
-            room_id, 
-            transaction_id, 
-            itemname, 
-            check_in, 
-            check_out, 
-            no_of_guest, 
-            no_of_night, 
-            room_no, 
-            unit_price, 
-            amount, 
-            created_at
+    if(customer){ 
+        const getUserId = await pool.query(`SELECT * FROM users WHERE email = $1`, [email]);  
+        if (getUserId.rows[0].id === undefined) {
+            res.status(404).json('Records not found!');
+        }
+        const uid = getUserId.rows[0].id;
+        console.log(uid);
+
+        const response = await pool.query('INSERT INTO bookings(cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning *', [
+            uid, room_id, trans_id, itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, amount, created_at
         ]);
         console.log(response);
+        // return res.status(200).send('Successfully');
         res.json({
             message: 'Room added Successfully!',
             body: {
-                room: {cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at}
+                room: {uid, room_id, trans_id, itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, amount, created_at}
             }
         })
     }
@@ -59,6 +67,14 @@ const fetchBookingById = async (req, res) => {
                                     FROM users
                                     JOIN bookings ON users.id =  bookings.cust_id
                                     WHERE users.id = $1`, [id]);
+            const result = response[0];
+            if(!result) {
+                // res.status(401).send('Message not found!');
+                res.status(401).json({
+                    status: 'error',
+                    message: 'Record not found!',
+                });
+            }
             res.status(200).json(response.rows);
 };
 
@@ -85,9 +101,7 @@ const deleteBooking = async (req, res) => {
 
 function validateBooking(value) {
     const schema = {
-        cust_id: Joi.string().required(),
         room_id: Joi.string().required(),
-        transaction_id: Joi.string().required(),
         firstname: Joi.string().min(3).required(),
         lastname: Joi.string().min(3).required(),
         email: Joi.string().email().required(),

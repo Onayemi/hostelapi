@@ -1,7 +1,6 @@
 const { Pool } = require('pg');
 const Joi = require('joi');
 const { v4: uuidv4 } = require('uuid');
-// var crypto = require('crypto');
 
 const pool = new Pool({
     host: 'localhost',
@@ -27,9 +26,7 @@ const createBooking = async (req, res) => {
     const days = (timeDiff / (1000 * 60 * 24))/60;
 
     console.log(days);
-    // const { cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at } = req.bookings;
     const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type) VALUES ($1, $2, $3, $4, $5, $6) returning *', [
-    // const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type) VALUES ($1, $2, $3, $4, $5, $6) returning *', [
         firstname, lastname, email, phone, address, type
     ]);
     if(customer){ 

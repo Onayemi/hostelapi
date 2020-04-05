@@ -76,13 +76,13 @@ const fetchBookingById = async (req, res) => {
                                     JOIN bookings ON users.id =  bookings.cust_id
                                     WHERE users.id = $1`, [id]);
             const result = response[0];
-            if(!result) {
-                // res.status(401).send('Message not found!');
-                res.status(401).json({
-                    status: 'error',
-                    message: 'Record not found!',
-                });
-            }
+            // if(!result) {
+            //     // res.status(401).send('Message not found!');
+            //     res.status(401).json({
+            //         status: 'error',
+            //         message: 'Record not found!',
+            //     });
+            // }
             res.status(200).json(response.rows);
 };
 

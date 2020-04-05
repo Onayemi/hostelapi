@@ -1,6 +1,6 @@
 API ENDPOINT
 
-url: 'http://localhost:3000'
+url: 'http://localhost:3000/api/v1/'
 
 1. Fetch All Rooms
 Endpoint: GET /manage/rooms
@@ -90,23 +90,19 @@ Parameter requirement:
 }
 
 {
-	"cust_id":"1", 
 	"firstname":"Onayemi", 
-	"lastname":	"sam", 
-	"email": "onayemi@gmail.com", 
+	"lastname":	"Jide", 
+	"email": "onayemi22@gmail.com", 
 	"phone": "08061313253", 
 	"address": "8 Adebayo street famous", 
-	"type":	"customer|admin|staff", 
-	"room_id": "21", 
-	"transaction_id": "29417af32a5a", 
-	"itemname":		"4 Beds spaces", 
+	"type":	"customer", 
+	"room_id": "7", 
+	"itemname":	"3 beds space", 
 	"check_in":	"2020-04-03", 
-	"check_out": "2020-04-05", 
-	"no_of_guest": "2", 
-	"no_of_night": "3", 
-	"room_no":	"21", 
+	"check_out": "2020-04-09", 
+	"no_of_guest": "3", 
+	"room_no":	"34", 
 	"unit_price": "1500.00", 
-	"amount": "4500.00", 
 	"created_at": "2020-04-03 11:12:00"
 }
 
@@ -140,9 +136,15 @@ Parameters requirement:
 	"itemname": "4 BEDS SPACE", 
 	"check_in":	"2020-04-03", 
 	"check_out": "2020-04-03", 
-	"no_of_guest":"2", 
-	"no_of_night":"3", 
+	"no_of_guest":"2",  
 	"room_no":	"0213", 
-	"unit_price":"1500.00", 
-	"amount":	"9000.00" 
+	"unit_price":"1500.00"  
+}
+
+10. Delete Booking
+Endpoint: DELETE /delete/booking/:id
+
+Parameter requirement:
+{
+	id: 			INTEGER,  
 }

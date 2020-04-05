@@ -20,34 +20,39 @@ const createBooking = async (req, res) => {
     const { cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at } = req.body;
     
     const trans_id = uuidv4();
-    console.log(trans_id);
     // check the interval of date
     const timeDiff = (new Date(check_out) - (new Date(check_in)));
     const days = (timeDiff / (1000 * 60 * 24))/60;
+    // compute the unit_price with no_of_days 
+    const total = ( no_of_guest * unit_price) * days;
 
-    console.log(days);
-    const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type) VALUES ($1, $2, $3, $4, $5, $6) returning *', [
-        firstname, lastname, email, phone, address, type
+    const status = 'enabled';
+
+    const customer = await pool.query('INSERT INTO users(firstname, lastname, email, phone, address, type, status) VALUES ($1, $2, $3, $4, $5, $6, $7) returning *', [
+        firstname, lastname, email, phone, address, type, status
     ]);
     if(customer){ 
+        // Fetch id of customer
         const getUserId = await pool.query(`SELECT * FROM users WHERE email = $1`, [email]);  
         if (getUserId.rows[0].id === undefined) {
             res.status(404).json('Records not found!');
         }
         const uid = getUserId.rows[0].id;
-        console.log(uid);
-
+        // console.log(uid);
+        // Insert into booking table
         const response = await pool.query('INSERT INTO bookings(cust_id, room_id, transaction_id, itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning *', [
-            uid, room_id, trans_id, itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, amount, created_at
+            uid, room_id, trans_id, itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, total, created_at
         ]);
-        console.log(response);
+        if(response){
+            res.json({
+                message: 'Booking added Successfully!',
+                body: {
+                    data: {uid, room_id, trans_id, itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, total, created_at}
+                }
+            })
+        }
+        // console.log(response);
         // return res.status(200).send('Successfully');
-        res.json({
-            message: 'Room added Successfully!',
-            body: {
-                room: {uid, room_id, trans_id, itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, amount, created_at}
-            }
-        })
     }
 };
 
@@ -55,6 +60,12 @@ const fetchBooking = async (req, res) => {
     const response = await pool.query(`SELECT users.firstname, users.lastname, bookings.transaction_id, bookings.itemname, bookings.check_in, bookings.check_out, bookings.no_of_night, bookings.room_no, bookings.unit_price, bookings.amount 
                                     FROM users
                                     JOIN bookings ON users.id = bookings.cust_id`);
+                if(!response){
+                    res.status(401).json({
+                        status: 'error',
+                        message: 'Record not found!',
+                    });
+                }
                 res.status(200).json(response.rows);
 };
 
@@ -78,12 +89,18 @@ const fetchBookingById = async (req, res) => {
 
 const updateBooking = async (req, res) => {
     const id = req.params.id;
+   
     const { itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount } = req.body;
+    // check the interval of date
+    const timeDiff = (new Date(check_out) - (new Date(check_in)));
+    const days = (timeDiff / (1000 * 60 * 24))/60;
+    // compute the unit_price with no_of_days 
+    const total = ( no_of_guest * unit_price) * days;
     const response = await pool.query('UPDATE bookings SET itemname = $1, check_in = $2, check_out = $3, no_of_guest = $4, no_of_night = $5, room_no = $6, unit_price = $7, amount = $8  WHERE id = $9', [
-        itemname, check_in, check_out, no_of_guest, no_of_night, room_no, unit_price, amount, id
+        itemname, check_in, check_out, no_of_guest, days, room_no, unit_price, total, id
     ]);
     console.log(response);
-    res.json(`Booking Updated successfully!`);
+    return res.status(200).json(`Booking Updated successfully!`);
 };
 
 const deleteBooking = async (req, res) => {
@@ -92,6 +109,12 @@ const deleteBooking = async (req, res) => {
     if(deleteBooking){
         const deleteCustomer = await pool.query('DELETE FROM users WHERE id = $1', [id]);
         console.log(deleteCustomer);
+        if(!deleteCustomer){
+            res.status(401).json({
+                status: 'error',
+                message: 'Record not delete!',
+            });
+        }
         res.json(`Booking ${id} delete successfully!`);
     }
 };
@@ -108,7 +131,7 @@ function validateBooking(value) {
         type: Joi.string().required(),
         room_no: Joi.string().required(),
         unit_price: Joi.string().required(),
-        amount: Joi.string().required(),
+        // amount: Joi.string().required(),
         check_in: Joi.string().required(),
         check_out: Joi.string().required(),
         no_of_guest: Joi.string().required(),
